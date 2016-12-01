@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Popular Movie</string>
+
+    <!-- Action Menu for Main Activity -->
+    <string name="action_menu_sort_most_popular">Most Popular</string>
+    <string name="action_menu_sort_highest_rated">Highest Rated</string>
+
+    <!-- Popular Movie List Item -->
+    <string name="movie_title">Movie Title</string>
+    <string name="movie_poster">Movie Poster</string>
+</resources>
