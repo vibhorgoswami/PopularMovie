@@ -1,17 +1,19 @@
 package com.govibs.popularmovie;
 
-import android.support.design.widget.Snackbar;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.govibs.popularmovie.movie.IMovieDetailCallback;
 import com.govibs.popularmovie.movie.MovieDetails;
 import com.govibs.popularmovie.movie.MovieListAdapter;
 import com.govibs.popularmovie.network.INetworkResponse;
@@ -26,12 +28,13 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements INetworkResponse{
 
+    private static final int REQUEST_POPULAR_MOVIES = 0;
+    private static final int REQUEST_HIGHEST_RATED = 1;
+    private static final int REQUES_MOVIE_DETAILS = 2;
 
-    private ArrayList<MovieDetails> mMovieDetailsArrayList = new ArrayList<>();
     private RecyclerView mRecyclerView;
-    private MovieListAdapter mMovieListAdapter;
-    private ProgressBar progressBarLoader;
     private StaggeredGridLayoutManager staggeredGridLayoutManager;
+    private RelativeLayout mContainerView;
 
 
     @Override
@@ -39,6 +42,11 @@ public class MainActivity extends AppCompatActivity implements INetworkResponse{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initViews();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         getMediaDetailFromServer();
     }
 
@@ -64,16 +72,8 @@ public class MainActivity extends AppCompatActivity implements INetworkResponse{
                 getMediaDetailFromServer();
                 return true;
 
-            case R.id.menu_sort_popular_movies:
-                PopularMoviePreferences.setCurrentRequest(getApplicationContext(), 1);
-                displayProgress();
-                getMediaDetailFromServer();
-                return true;
-
-            case R.id.menu_sort_top_rating:
-                PopularMoviePreferences.setCurrentRequest(getApplicationContext(), 2);
-                displayProgress();
-                getMediaDetailFromServer();
+            case R.id.menu_sort:
+                showSortDialog();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -83,37 +83,26 @@ public class MainActivity extends AppCompatActivity implements INetworkResponse{
      * Initialize views
      */
     private void initViews() {
+        mContainerView = (RelativeLayout) findViewById(R.id.activity_main);
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerViewMovieList);
         staggeredGridLayoutManager = new StaggeredGridLayoutManager(
                 getResources().getInteger(R.integer.span_column_view_for_movies),
                 StaggeredGridLayoutManager.VERTICAL);
-        mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(staggeredGridLayoutManager);
-        progressBarLoader = (ProgressBar) findViewById(R.id.progressBarLoader);
-        progressBarLoader.setVisibility(View.VISIBLE);
-        mRecyclerView.setVisibility(View.GONE);
-    }
-
-    /**
-     * Display Progress
-     */
-    private void displayProgress() {
-        progressBarLoader.setVisibility(View.VISIBLE);
-        mRecyclerView.setVisibility(View.GONE);
+        mRecyclerView.setHasFixedSize(true);
     }
 
 
     /**
-     * Get media detail from servicer
+     * Get media detail from service
      */
     private void getMediaDetailFromServer() {
         NetworkManager.NetworkCallRequest networkCallRequest = NetworkManager.NetworkCallRequest.NETWORK_CALL_REQUEST_POPULAR_MOVIES;
-        if (PopularMoviePreferences.getCurrentRequest(getApplicationContext()) != 1) {
+        if (PopularMoviePreferences.getCurrentRequest(getApplicationContext()) == REQUEST_HIGHEST_RATED) {
             networkCallRequest = NetworkManager.NetworkCallRequest.NETWORK_CALL_REQUEST_TOP_RATED;
         }
         NetworkManager.getInstance(getApplicationContext()).createNetworkRequest(
                networkCallRequest , this);
-        updateSortTitle();
     }
 
     /**
@@ -121,9 +110,17 @@ public class MainActivity extends AppCompatActivity implements INetworkResponse{
      * @param responseObject MediaDetail list object
      */
     private void loadMediaDetail(JSONObject responseObject) {
-        mMovieDetailsArrayList = MovieDataUtils.getMovieDetailsFromResponse(responseObject);
-        mMovieListAdapter = new MovieListAdapter(getApplicationContext(), mMovieDetailsArrayList);
-        mRecyclerView.setAdapter(mMovieListAdapter);
+        final ArrayList<MovieDetails> movieDetailsArrayList = MovieDataUtils.getMovieDetailsFromResponse(responseObject);
+        MovieListAdapter movieListAdapter = new MovieListAdapter(MainActivity.this,
+                movieDetailsArrayList, new IMovieDetailCallback() {
+            @Override
+            public void onMovieSelected(int position) {
+                startMovieDetailActivity(movieDetailsArrayList.get(position));
+            }
+        });
+        mRecyclerView.setLayoutManager(staggeredGridLayoutManager);
+        mRecyclerView.setAdapter(movieListAdapter);
+        //mRecyclerView.swapAdapter(mMovieListAdapter, true);
         updateListUI();
     }
 
@@ -131,21 +128,48 @@ public class MainActivity extends AppCompatActivity implements INetworkResponse{
      * Update List UI
      */
     private void updateListUI() {
-        progressBarLoader.setVisibility(View.GONE);
         mRecyclerView.setVisibility(View.VISIBLE);
-        mMovieListAdapter.notifyDataSetChanged();
         mRecyclerView.invalidate();
+        mContainerView.invalidate();
+        updateSortTitle();
     }
 
     /**
      * Update the title
      */
     private void updateSortTitle() {
-        if (PopularMoviePreferences.getCurrentRequest(getApplicationContext()) == 1) {
+        if (PopularMoviePreferences.getCurrentRequest(getApplicationContext()) == REQUEST_POPULAR_MOVIES) {
             setTitle(R.string.title_popular_movies_most_popular);
         } else {
             setTitle(R.string.title_popular_movies_highest_rated);
         }
+    }
+
+    private void showSortDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Sort");
+        int checkedItem = PopularMoviePreferences.getCurrentRequest(getApplicationContext());
+        builder.setSingleChoiceItems(R.array.sort_options, checkedItem, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (i == 0) {
+                    PopularMoviePreferences.setCurrentRequest(getApplicationContext(), REQUEST_POPULAR_MOVIES);
+                    getMediaDetailFromServer();
+                } else {
+                    PopularMoviePreferences.setCurrentRequest(getApplicationContext(), REQUEST_HIGHEST_RATED);
+                    getMediaDetailFromServer();
+                }
+                dialogInterface.dismiss();
+            }
+        });
+        builder.create().show();
+    }
+
+    private void startMovieDetailActivity(MovieDetails movieDetails) {
+        Intent intent = new Intent(MainActivity.this, MovieDetailActivity.class);
+        intent.putExtra(MovieDetailActivity.PARAM_MOVIE_DETAIL, movieDetails);
+        startActivityForResult(intent, REQUES_MOVIE_DETAILS);
+        overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
     }
 
 }

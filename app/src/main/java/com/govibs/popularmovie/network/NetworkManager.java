@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.util.LruCache;
 
 import com.android.volley.Request;
@@ -98,6 +99,7 @@ public final class NetworkManager {
                 .appendPath(mContext.getString(R.string.param_popular))
                 .appendQueryParameter(mContext.getString(R.string.param_api),
                         mContext.getString(R.string.api_key)).build();
+        Log.v("VIBS", uri.toString());
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(uri.toString(), null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
@@ -110,9 +112,10 @@ public final class NetworkManager {
             public void onErrorResponse(VolleyError error) {
                 final NetworkResponse response = new NetworkResponse();
                 response.setVolleyError(error);
+                networkResponse.onNetworkResponse(response);
             }
         });
-        getRequestQueue().add(jsonObjectRequest);
+        addToRequestQueue(jsonObjectRequest);
     }
 
     /**
@@ -124,6 +127,7 @@ public final class NetworkManager {
                 .appendPath(mContext.getString(R.string.param_top_rated))
                 .appendQueryParameter(mContext.getString(R.string.param_api),
                         mContext.getString(R.string.api_key)).build();
+        Log.v("VIBS", uri.toString());
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(uri.toString(), null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject jsonObject) {
@@ -136,9 +140,10 @@ public final class NetworkManager {
             public void onErrorResponse(VolleyError error) {
                 final NetworkResponse response = new NetworkResponse();
                 response.setVolleyError(error);
+                networkResponse.onNetworkResponse(response);
             }
         });
-        getRequestQueue().add(jsonObjectRequest);
+        addToRequestQueue(jsonObjectRequest);
     }
 
     private RequestQueue getRequestQueue() {
