@@ -6,4 +6,5 @@
 
     <!-- Dimensions for movie layout poster -->
     <dimen name="dimen_movie_layout_poster">200dp</dimen>
+
 </resources>

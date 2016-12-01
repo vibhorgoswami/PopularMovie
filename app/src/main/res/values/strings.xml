@@ -1,11 +1,32 @@
 <resources>
-    <string name="app_name">Popular Movie</string>
+    <string name="app_name">Popular Movies</string>
+    <string name="powered_by_movie_db">Powered by The Movies DB</string>
+    <string name="title_popular_movies_most_popular">Most Recent Movies</string>
+    <string name="title_popular_movies_highest_rated">Highest Rated Movies</string>
 
+    <!-- Main Activity -->
+    <integer name="span_column_view_for_movies">2</integer>
+    <string name="error_no_network">No internet connection</string>
     <!-- Action Menu for Main Activity -->
     <string name="action_menu_sort_most_popular">Most Popular</string>
     <string name="action_menu_sort_highest_rated">Highest Rated</string>
+    <string name="action_menu_refresh">Refresh</string>
+    <string name="action_menu_settings">Settings</string>
 
     <!-- Popular Movie List Item -->
     <string name="movie_title">Movie Title</string>
     <string name="movie_poster">Movie Poster</string>
+
+    <!-- Base URL Movie DB API -->
+    <string name="base_url_movie_db">https://api.themoviedb.org/3/movie/</string>
+    <!-- Image Base URL -->
+    <string name="base_url_image">https://image.tmdb.org/t/p/w500/</string>
+    <string name="param_api">api_key</string>
+    <string name="param_top_rated">top_rated</string>
+    <string name="param_popular">popular</string>
+
+    <!-- API Key to be placed here -->
+    <string name="api_key">8a33ed29109d566e4a31b3f459cb9d39</string>
+    <string name="title_activity_settings">Settings</string>
+
 </resources>

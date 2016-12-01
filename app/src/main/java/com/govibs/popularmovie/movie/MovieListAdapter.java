@@ -1,5 +1,7 @@
 package com.govibs.popularmovie.movie;
 
+import android.content.Context;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +10,7 @@ import android.widget.TextView;
 
 import com.android.volley.toolbox.NetworkImageView;
 import com.govibs.popularmovie.R;
+import com.govibs.popularmovie.network.NetworkManager;
 
 import java.util.ArrayList;
 
@@ -19,6 +22,7 @@ import java.util.ArrayList;
 public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.MovieListViewHolder> {
 
     private ArrayList<MovieDetails> mMovieDetailsArrayList = new ArrayList<>();
+    private Context mContext;
 
     public static class MovieListViewHolder extends RecyclerView.ViewHolder {
 
@@ -33,6 +37,16 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
 
     }
 
+    /***
+     * Moview list adapter
+     * @param context the calling application context
+     * @param movieDetailsArrayList the movie details array list
+     */
+    public MovieListAdapter(Context context, ArrayList<MovieDetails> movieDetailsArrayList) {
+        mContext = context;
+        mMovieDetailsArrayList = movieDetailsArrayList;
+    }
+
     @Override
     public MovieListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_movie_item, parent, false);
@@ -42,7 +56,10 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
     @Override
     public void onBindViewHolder(MovieListViewHolder holder, int position) {
         holder.movieTitle.setText(mMovieDetailsArrayList.get(position).getMovieTitle());
-        
+        holder.moviePoster.setDefaultImageResId(R.drawable.popular_movies_powered_by_movie_db);
+        final String url = Uri.parse(mContext.getString(R.string.base_url_image)).buildUpon().build().toString()
+                + mMovieDetailsArrayList.get(position).getMoviePosterUrl();
+        holder.moviePoster.setImageUrl(url, NetworkManager.getInstance(mContext).getImageLoader());
     }
 
     @Override
