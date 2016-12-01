@@ -26,7 +26,7 @@
     <string name="param_popular">popular</string>
 
     <!-- API Key to be placed here -->
-    <string name="api_key">8a33ed29109d566e4a31b3f459cb9d39</string>
+    <string name="api_key"></string>
     <string name="title_activity_settings">Settings</string>
 
     <string-array name="sort_options">
