@@ -35,7 +35,8 @@ public class MainActivity extends AppCompatActivity implements INetworkResponse{
     private RecyclerView mRecyclerView;
     private StaggeredGridLayoutManager staggeredGridLayoutManager;
     private RelativeLayout mContainerView;
-
+    private MovieListAdapter mMovieListAdapter;
+    private ArrayList<MovieDetails> mMovieDetailsArrayList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,6 +91,15 @@ public class MainActivity extends AppCompatActivity implements INetworkResponse{
                 StaggeredGridLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(staggeredGridLayoutManager);
         mRecyclerView.setHasFixedSize(true);
+        mMovieListAdapter = new MovieListAdapter(MainActivity.this,
+                mMovieDetailsArrayList, new IMovieDetailCallback() {
+            @Override
+            public void onMovieSelected(int position) {
+                startMovieDetailActivity(mMovieDetailsArrayList.get(position));
+            }
+        });
+        mRecyclerView.setLayoutManager(staggeredGridLayoutManager);
+        mRecyclerView.setAdapter(mMovieListAdapter);
     }
 
 
@@ -110,17 +120,7 @@ public class MainActivity extends AppCompatActivity implements INetworkResponse{
      * @param responseObject MediaDetail list object
      */
     private void loadMediaDetail(JSONObject responseObject) {
-        final ArrayList<MovieDetails> movieDetailsArrayList = MovieDataUtils.getMovieDetailsFromResponse(responseObject);
-        MovieListAdapter movieListAdapter = new MovieListAdapter(MainActivity.this,
-                movieDetailsArrayList, new IMovieDetailCallback() {
-            @Override
-            public void onMovieSelected(int position) {
-                startMovieDetailActivity(movieDetailsArrayList.get(position));
-            }
-        });
-        mRecyclerView.setLayoutManager(staggeredGridLayoutManager);
-        mRecyclerView.setAdapter(movieListAdapter);
-        //mRecyclerView.swapAdapter(mMovieListAdapter, true);
+        mMovieListAdapter.swapData(MovieDataUtils.getMovieDetailsFromResponse(responseObject));
         updateListUI();
     }
 
@@ -145,6 +145,9 @@ public class MainActivity extends AppCompatActivity implements INetworkResponse{
         }
     }
 
+    /**
+     * Show sort dialog.
+     */
     private void showSortDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Sort");

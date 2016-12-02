@@ -79,4 +79,13 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
     public int getItemCount() {
         return mMovieDetailsArrayList.size();
     }
+
+    /**
+     * Swap the cursor data
+     * @param movieDetailsArrayList the movie details array list
+     */
+    public void swapData(ArrayList<MovieDetails> movieDetailsArrayList) {
+        mMovieDetailsArrayList = movieDetailsArrayList;
+        notifyDataSetChanged();
+    }
 }
