@@ -7,6 +7,10 @@ package com.govibs.popularmovie.movie;
 
 public interface IMovieDetailCallback {
 
-    void onMovieSelected(int position);
+    /**
+     * Movie Selected callback
+     * @param movieDetail the movie item that was selected.
+     */
+    void onMovieSelected(MovieDetails movieDetail);
 
 }

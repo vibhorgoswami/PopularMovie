@@ -33,10 +33,8 @@ public class MainActivity extends AppCompatActivity implements INetworkResponse{
     private static final int REQUES_MOVIE_DETAILS = 2;
 
     private RecyclerView mRecyclerView;
-    private StaggeredGridLayoutManager staggeredGridLayoutManager;
     private RelativeLayout mContainerView;
     private MovieListAdapter mMovieListAdapter;
-    private ArrayList<MovieDetails> mMovieDetailsArrayList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,16 +84,16 @@ public class MainActivity extends AppCompatActivity implements INetworkResponse{
     private void initViews() {
         mContainerView = (RelativeLayout) findViewById(R.id.activity_main);
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerViewMovieList);
-        staggeredGridLayoutManager = new StaggeredGridLayoutManager(
+        StaggeredGridLayoutManager staggeredGridLayoutManager = new StaggeredGridLayoutManager(
                 getResources().getInteger(R.integer.span_column_view_for_movies),
                 StaggeredGridLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(staggeredGridLayoutManager);
         mRecyclerView.setHasFixedSize(true);
         mMovieListAdapter = new MovieListAdapter(MainActivity.this,
-                mMovieDetailsArrayList, new IMovieDetailCallback() {
+                new ArrayList<MovieDetails>(), new IMovieDetailCallback() {
             @Override
-            public void onMovieSelected(int position) {
-                startMovieDetailActivity(mMovieDetailsArrayList.get(position));
+            public void onMovieSelected(MovieDetails movieDetail) {
+                startMovieDetailActivity(movieDetail);
             }
         });
         mRecyclerView.setLayoutManager(staggeredGridLayoutManager);

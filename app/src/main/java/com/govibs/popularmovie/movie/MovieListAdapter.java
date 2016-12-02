@@ -69,7 +69,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<MovieListAdapter.Movi
             @Override
             public void onClick(View view) {
                 if (mIMovieDetailCallback != null) {
-                    mIMovieDetailCallback.onMovieSelected(holder.getAdapterPosition());
+                    mIMovieDetailCallback.onMovieSelected(mMovieDetailsArrayList.get(holder.getAdapterPosition()));
                 }
             }
         });
